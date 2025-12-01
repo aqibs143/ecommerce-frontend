@@ -1,0 +1,86 @@
+// src/pages/AdminOrders.jsx
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+const allowedStatuses = ["PENDING", "SHIPPED", "DELIVERED"];
+
+export default function AdminOrders() {
+  const [orders, setOrders] = useState([]);
+
+  const fetchOrders = () => {
+    axios
+      .get("http://localhost:8080/orders/all")
+      .then((res) => {
+        console.log("Orders:", res.data);
+        setOrders(res.data);
+      })
+      .catch((err) => {
+        console.error("Error loading orders:", err);
+      });
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const changeStatus = (orderId, status) => {
+    console.log("Changing status:", { orderId, status });
+    axios
+      .put(
+        "http://localhost:8080/orders/updateStatus",
+        null,
+        { params: { orderId, status } }
+      )
+      .then((res) => {
+        console.log("Status update response:", res.data);
+        fetchOrders();
+      })
+      .catch((err) => {
+        console.error("Error updating status:", err);
+        alert("Failed to update status. Check console.");
+      });
+  };
+
+  return (
+    <div className="container">
+      <h2>Admin – All Orders</h2>
+      {orders.length === 0 ? (
+        <p>No orders found.</p>
+      ) : (
+        <table className="cart-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>User</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Change Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((o) => (
+              <tr key={o.orderId}>
+                <td>{o.orderId}</td>
+                <td>{o.user?.username}</td>
+                <td>₹ {o.totalAmount}</td>
+                <td>{o.status}</td>
+                <td>
+                  {allowedStatuses.map((st) => (
+                    <button
+                      key={st}
+                      // only disable the button for current status
+                      disabled={st === o.status}
+                      onClick={() => changeStatus(o.orderId, st)}
+                    >
+                      {st}
+                    </button>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
