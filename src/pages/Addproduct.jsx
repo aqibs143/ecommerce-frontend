@@ -6,23 +6,30 @@ export default function Addproduct() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [sku, setSku] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("");
   const [image, setImage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:8080/addProduct", {
+      .post("http://localhost:8080/products/addProduct", {
         name,
         description,
-        price: parseInt(price, 10),
+        price: parseFloat(price),
+        sku,
+        stockQuantity: parseInt(stockQuantity, 10),
         image,
       })
       .then(() => {
         alert("Product added!");
         navigate("/admin_page");
       })
-      .catch(() => alert("Error adding product"));
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error adding product");
+      });
   };
 
   return (
@@ -39,6 +46,15 @@ export default function Addproduct() {
           />
         </div>
         <div className="form-group">
+          <label>SKU:</label>
+          <input
+            type="text"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
           <label>Description:</label>
           <input
             type="text"
@@ -51,8 +67,18 @@ export default function Addproduct() {
           <label>Price:</label>
           <input
             type="number"
+            step="0.01"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Stock Quantity:</label>
+          <input
+            type="number"
+            value={stockQuantity}
+            onChange={(e) => setStockQuantity(e.target.value)}
             required
           />
         </div>
