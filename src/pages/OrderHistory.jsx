@@ -8,44 +8,50 @@ export default function OrderHistory() {
 
   useEffect(() => {
     if (!username) return;
+
     axios
-      .get("http://localhost:8080/orders/history", {
-        params: { username },
+      .get("http://localhost:8080/orders/history", { params: { username } })
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setOrders(res.data);
+        } else {
+          setOrders([]);
+        }
       })
-      .then((res) => setOrders(res.data))
       .catch(console.error);
   }, [username]);
 
   return (
     <div className="container">
       <h2>My Orders</h2>
+
       {orders.length === 0 ? (
         <p>No orders yet.</p>
       ) : (
-        <table className="cart-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Payment</th>
-              <th>Date</th>
-              <th>Address</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((o) => (
-              <tr key={o.orderId}>
-                <td>{o.orderId}</td>
-                <td>₹ {o.totalAmount}</td>
-                <td>{o.status}</td>
-                <td>{o.paymentMode}</td>
-                <td>{new Date(o.orderDate).toLocaleString()}</td>
-                <td>{o.address}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        orders.map((order) => (
+          <div key={order.orderId} className="order-box">
+            <h3>Order #{order.orderId}</h3>
+
+            <p>
+              <strong>Status:</strong> {order.status}
+            </p>
+            <p>
+              <strong>Payment Mode:</strong> {order.paymentMode}
+            </p>
+            <p>
+              <strong>Total Amount:</strong> ₹{order.totalAmount}
+            </p>
+            <p>
+              <strong>Address:</strong> {order.address}
+            </p>
+            <p>
+              <strong>Date:</strong>{" "}
+              {new Date(order.orderDate).toLocaleString()}
+            </p>
+
+            <hr />
+          </div>
+        ))
       )}
     </div>
   );

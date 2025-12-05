@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import PaymentButton from "../pages/PaymentButton";
+
 export default function ViewCart() {
   const [username] = useState(localStorage.getItem("username") || "");
   const [items, setItems] = useState([]);
@@ -10,18 +12,21 @@ export default function ViewCart() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Fetch Cart Items
   const fetchCart = useCallback(() => {
     if (!username) return;
+
     axios
       .get("http://localhost:8080/viewCart", { params: { username } })
       .then((res) => setItems(res.data))
       .catch(console.error);
-  }, [username]); // add username as dependency
+  }, [username]);
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
+  // Update Quantity
   const updateQuantity = (item, newQty) => {
     if (newQty < 1) return;
 
@@ -35,6 +40,7 @@ export default function ViewCart() {
       .catch(console.error);
   };
 
+  // Delete item
   const deleteItem = (productId) => {
     axios
       .delete("http://localhost:8080/cart/remove", {
@@ -44,28 +50,30 @@ export default function ViewCart() {
       .catch(console.error);
   };
 
+  // Clear Cart
   const clearCart = () => {
     axios
-      .delete("http://localhost:8080/cart/clear", {
-        params: { username },
-      })
+      .delete("http://localhost:8080/cart/clear", { params: { username } })
       .then(fetchCart)
       .catch(console.error);
   };
 
   const total = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
 
+  // COD Checkout
   const handleCheckout = () => {
     if (!address.trim()) {
       alert("Please enter delivery address");
       return;
     }
+
     if (items.length === 0) {
       alert("Cart is empty");
       return;
     }
 
     setLoading(true);
+
     axios
       .post("http://localhost:8080/orders/checkout", {
         username,
@@ -73,10 +81,9 @@ export default function ViewCart() {
         paymentMode,
       })
       .then((res) => {
-        alert(`Order placed. Order ID: ${res.data.orderId}`);
+        alert(`Order placed successfully. Order ID: ${res.data.orderId}`);
         setAddress("");
         fetchCart();
-        // redirect to order history page
         navigate("/order_history_page");
       })
       .catch((err) => {
@@ -94,6 +101,7 @@ export default function ViewCart() {
         <p>Your cart is empty.</p>
       ) : (
         <>
+          {/* CART TABLE */}
           <table className="cart-table">
             <thead>
               <tr>
@@ -105,6 +113,7 @@ export default function ViewCart() {
                 <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {items.map((it) => (
                 <tr key={it.productId}>
@@ -112,9 +121,8 @@ export default function ViewCart() {
                     <img src={it.image} alt={it.name} width="80" />
                   </td>
                   <td>{it.name}</td>
-                  <td>₹ {it.price}</td>
-                  <td>{it.quantity}</td>
-                  <td>₹ {it.price * it.quantity}</td>
+                  <td>₹{it.price}</td>
+
                   <td>
                     <button
                       className="btn btn-primary"
@@ -122,6 +130,9 @@ export default function ViewCart() {
                     >
                       +
                     </button>
+
+                    <span style={{ margin: "0 10px" }}>{it.quantity}</span>
+
                     <button
                       className="btn btn-secondary"
                       disabled={it.quantity <= 1}
@@ -129,6 +140,11 @@ export default function ViewCart() {
                     >
                       −
                     </button>
+                  </td>
+
+                  <td>₹{it.price * it.quantity}</td>
+
+                  <td>
                     <button
                       className="btn btn-danger"
                       onClick={() => deleteItem(it.productId)}
@@ -141,20 +157,25 @@ export default function ViewCart() {
             </tbody>
           </table>
 
+          {/* CART SUMMARY */}
           <div className="cart-summary">
-            <h3>Total: ₹ {total}</h3>
+            <h3>Total: ₹{total}</h3>
             <button className="btn btn-danger" onClick={clearCart}>
               Clear Cart
             </button>
           </div>
 
+          {/* CHECKOUT BOX */}
           <div className="checkout-box">
             <h3>Checkout</h3>
+
             <textarea
               placeholder="Enter delivery address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
+
+            {/* PAYMENT OPTIONS */}
             <div>
               <label>
                 <input
@@ -165,23 +186,35 @@ export default function ViewCart() {
                 />
                 Cash on Delivery
               </label>
-              <label style={{ marginLeft: "10px" }}>
+
+              <label style={{ marginLeft: "20px" }}>
                 <input
                   type="radio"
-                  value="ONLINE_SIM"
-                  checked={paymentMode === "ONLINE_SIM"}
+                  value="ONLINE"
+                  checked={paymentMode === "ONLINE"}
                   onChange={(e) => setPaymentMode(e.target.value)}
                 />
-                Online (Simulated)
+                Online Payment (Razorpay)
               </label>
             </div>
-            <button
-              className="btn btn-primary"
-              onClick={handleCheckout}
-              disabled={loading}
-            >
-              {loading ? "Placing Order..." : "Place Order"}
-            </button>
+
+            {/* COD BUTTON */}
+            {paymentMode === "COD" && (
+              <button
+                className="btn btn-primary"
+                onClick={handleCheckout}
+                disabled={loading}
+              >
+                {loading ? "Placing Order..." : "Place COD Order"}
+              </button>
+            )}
+
+            {/* RAZORPAY BUTTON */}
+            {paymentMode === "ONLINE" && (
+              <div style={{ marginTop: "20px" }}>
+                <PaymentButton username={username} />
+              </div>
+            )}
           </div>
         </>
       )}
