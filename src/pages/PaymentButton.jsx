@@ -30,7 +30,7 @@ export default function PaymentButton({ address }) {
       return;
     }
 
-    // 1️⃣ Create order from backend
+    // Create order from backend
     let orderRes;
     try {
       orderRes = await axios.post(
@@ -46,7 +46,7 @@ export default function PaymentButton({ address }) {
 
     const { orderId, amount, currency } = orderRes.data;
 
-    // 2️⃣ Razorpay UI config
+    // Razorpay UI config
     const options = {
       key: "rzp_test_A0pogOFt1fVWQe", // YOUR KEY
       amount,
@@ -55,7 +55,7 @@ export default function PaymentButton({ address }) {
       description: "Order Payment",
       order_id: orderId,
 
-      // 3️⃣ Payment success handler
+      // Payment success handler
       handler: async function (response) {
         try {
           await axios.post("http://localhost:8080/payment/confirm", {

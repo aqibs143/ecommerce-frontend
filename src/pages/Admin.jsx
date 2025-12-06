@@ -17,10 +17,8 @@ export default function Admin() {
   const normalizeProducts = (payload) => {
     if (!payload) return [];
     if (Array.isArray(payload)) return payload;
-    // If backend wrapped array, try common wrappers
     if (Array.isArray(payload.products)) return payload.products;
     if (Array.isArray(payload.data)) return payload.data;
-    // Single object => return as single-element array
     if (typeof payload === "object") return [payload];
     return [];
   };

@@ -37,9 +37,9 @@ export default function Customer() {
         setQuantities(q);
       })
       .catch(console.error);
-  }, [query, loadProducts]); // MUST include dependencies
+  }, [query, loadProducts]);
 
-  // 🔄 Real-time search (debounced)
+  // Real-time search (debounced)
   useEffect(() => {
     const delay = setTimeout(() => searchProducts(), 300);
     return () => clearTimeout(delay);

@@ -70,7 +70,6 @@ export default function AdminOrders() {
               <tr key={o.orderId}>
                 <td>{o.orderId}</td>
 
-                {/* User won't exist unless you REMOVE @JsonIgnore on user */}
                 <td>{o.user?.username ?? "N/A"}</td>
 
                 <td>₹ {o.totalAmount}</td>
