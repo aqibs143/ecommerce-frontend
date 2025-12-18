@@ -1,5 +1,5 @@
 // src/pages/AdminOrders.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../api/requests"; // JWT-enabled axios
 
 const allowedStatuses = ["PENDING", "SHIPPED", "DELIVERED"];
@@ -7,17 +7,19 @@ const allowedStatuses = ["PENDING", "SHIPPED", "DELIVERED"];
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
 
-  const normalizeOrders = (data) => {
+  // Normalize backend response safely
+  const normalizeOrders = useCallback((data) => {
     if (!data) return [];
     if (Array.isArray(data)) return data;
     if (Array.isArray(data.orders)) return data.orders;
     if (Array.isArray(data.data)) return data.data;
     return [];
-  };
+  }, []);
 
-  const fetchOrders = () => {
+  // Fetch orders (stable reference)
+  const fetchOrders = useCallback(() => {
     api
-      .get("/orders/all") // token attached
+      .get("/orders/all") // JWT attached automatically
       .then((res) => {
         console.log("Orders:", res.data);
         setOrders(normalizeOrders(res.data));
@@ -26,17 +28,19 @@ export default function AdminOrders() {
         console.error("Error loading orders:", err);
         setOrders([]);
       });
-  };
+  }, [normalizeOrders]);
 
+  // Run once on mount
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
+  // Update order status
   const changeStatus = (orderId, status) => {
     api
       .put("/orders/updateStatus", null, {
         params: { orderId, status },
-      }) // token attached
+      })
       .then((res) => {
         console.log("Status update response:", res.data);
         fetchOrders();

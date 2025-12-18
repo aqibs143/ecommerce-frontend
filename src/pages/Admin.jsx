@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/requests"; // JWT-enabled axios instance
 
@@ -6,24 +6,26 @@ export default function Admin() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const normalizeProducts = (payload) => {
+  // Normalize backend response safely
+  const normalizeProducts = useCallback((payload) => {
     if (!payload) return [];
     if (Array.isArray(payload)) return payload;
     if (Array.isArray(payload.products)) return payload.products;
     if (Array.isArray(payload.data)) return payload.data;
     if (typeof payload === "object") return [payload];
     return [];
-  };
+  }, []);
 
-  const fetchProducts = () =>
+  // Fetch products (stable reference)
+  const fetchProducts = useCallback(() => {
+    setLoading(true);
+    setError(null);
+
     api
-      .get("/products/getAllProducts") // token attached automatically
+      .get("/products/getAllProducts") // JWT attached automatically
       .then((res) => {
         console.log("GET PRODUCTS RESPONSE:", res.data);
         setProducts(normalizeProducts(res.data));
@@ -33,18 +35,28 @@ export default function Admin() {
         setError("Failed to load products");
       })
       .finally(() => setLoading(false));
+  }, [normalizeProducts]);
 
-  const handleDelete = (id) =>
+  // Run once on mount
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Delete product
+  const handleDelete = (id) => {
     api
-      .delete("/products/deleteProduct", { params: { id } }) // token attached
+      .delete("/products/deleteProduct", { params: { id } })
       .then(() => fetchProducts())
       .catch((err) => {
-        console.error("delete error", err);
+        console.error("delete error:", err);
         setError("Delete failed");
       });
+  };
 
-  const handleUpdate = (product) =>
+  // Navigate to update page
+  const handleUpdate = (product) => {
     navigate("/update_prod_page", { state: { product } });
+  };
 
   if (loading) return <div>Loading products…</div>;
   if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
