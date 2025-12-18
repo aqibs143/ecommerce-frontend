@@ -1,4 +1,3 @@
-// App.js
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Welcome from './pages/Welcome';
 import Signup from './pages/Signup';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../api/requests"; // USE JWT-AWARE AXIOS
 
 export default function Customer() {
   const [username, setUsername] = useState("");
@@ -9,29 +9,48 @@ export default function Customer() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
+  // Load all products
   const loadProducts = useCallback(() => {
-    axios
-      .get("http://localhost:8080/products/getAllProducts")
+    api
+      .get("/products/getAllProducts")
       .then((res) => {
         setProducts(res.data);
+
         const q = {};
         res.data.forEach((p) => (q[p.id] = 1));
         setQuantities(q);
       })
-      .catch(console.error);
-  }, []);
-  useEffect(() => {
-    setUsername(localStorage.getItem("username") || "");
-    loadProducts();
-  }, [loadProducts]);
+      .catch((err) => {
+        console.error(err);
+        if (err.response?.status === 403) {
+          alert("Session expired. Please login again.");
+          navigate("/signin");
+        }
+      });
+  }, [navigate]);
 
-  //  WRAP searchProducts in useCallback
+  useEffect(() => {
+    const storedUser = localStorage.getItem("username");
+    if (!storedUser) {
+      navigate("/signin");
+      return;
+    }
+    setUsername(storedUser);
+    loadProducts();
+  }, [loadProducts, navigate]);
+
+  // Search products
   const searchProducts = useCallback(() => {
-    if (!query.trim()) return loadProducts();
-    axios
-      .get("http://localhost:8080/products/search", { params: { query } })
+    if (!query.trim()) {
+      loadProducts();
+      return;
+    }
+
+    api
+      .get("/products/search", { params: { query } })
       .then((res) => {
         setProducts(res.data);
+
         const q = {};
         res.data.forEach((p) => (q[p.id] = 1));
         setQuantities(q);
@@ -39,9 +58,9 @@ export default function Customer() {
       .catch(console.error);
   }, [query, loadProducts]);
 
-  // Real-time search (debounced)
+  // Debounced search
   useEffect(() => {
-    const delay = setTimeout(() => searchProducts(), 300);
+    const delay = setTimeout(searchProducts, 300);
     return () => clearTimeout(delay);
   }, [query, searchProducts]);
 
@@ -52,20 +71,25 @@ export default function Customer() {
     }));
   };
 
+  // Add to cart
   const handleCart = (p) => {
-    axios
-      .post("http://localhost:8080/addToCart", {
+    api
+      .post("/addToCart", {
         username,
         productId: p.id,
         quantity: quantities[p.id],
       })
       .then(() => alert("Added to cart!"))
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        alert("Failed to add to cart");
+      });
   };
 
   return (
     <div className="container">
       <h2>Welcome, {username}</h2>
+
       <button
         className="btn btn-primary"
         onClick={() => navigate("/view_cart_page")}
@@ -86,6 +110,7 @@ export default function Customer() {
       </div>
 
       <h2>Available Products</h2>
+
       <table className="product-table">
         <thead>
           <tr>
@@ -97,6 +122,7 @@ export default function Customer() {
             <th>Action</th>
           </tr>
         </thead>
+
         <tbody>
           {products.map((p) => (
             <tr key={p.id}>
@@ -109,6 +135,7 @@ export default function Customer() {
               <td>
                 <input
                   type="number"
+                  min="1"
                   value={quantities[p.id] || 1}
                   onChange={(e) => handleQuantityChange(p.id, e.target.value)}
                 />

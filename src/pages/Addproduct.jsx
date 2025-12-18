@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../api/requests"; // JWT-enabled axios
 
 export default function Addproduct() {
   const [name, setName] = useState("");
@@ -13,15 +13,16 @@ export default function Addproduct() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .post("http://localhost:8080/products/addProduct", {
+
+    api
+      .post("/products/addProduct", {
         name,
         description,
         price: parseFloat(price),
         sku,
         stockQuantity: parseInt(stockQuantity, 10),
         image,
-      })
+      }) // token attached automatically
       .then(() => {
         alert("Product added!");
         navigate("/admin_page");
@@ -36,6 +37,7 @@ export default function Addproduct() {
     <div className="container">
       <form className="form-container" onSubmit={handleSubmit}>
         <h2>Add New Product</h2>
+
         <div className="form-group">
           <label>Product Name:</label>
           <input
@@ -45,6 +47,7 @@ export default function Addproduct() {
             required
           />
         </div>
+
         <div className="form-group">
           <label>SKU:</label>
           <input
@@ -54,6 +57,7 @@ export default function Addproduct() {
             required
           />
         </div>
+
         <div className="form-group">
           <label>Description:</label>
           <input
@@ -63,6 +67,7 @@ export default function Addproduct() {
             required
           />
         </div>
+
         <div className="form-group">
           <label>Price:</label>
           <input
@@ -73,6 +78,7 @@ export default function Addproduct() {
             required
           />
         </div>
+
         <div className="form-group">
           <label>Stock Quantity:</label>
           <input
@@ -82,6 +88,7 @@ export default function Addproduct() {
             required
           />
         </div>
+
         <div className="form-group">
           <label>Image URL:</label>
           <input
@@ -91,6 +98,7 @@ export default function Addproduct() {
             required
           />
         </div>
+
         <button className="btn btn-primary" type="submit">
           Add Product
         </button>

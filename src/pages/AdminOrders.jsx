@@ -1,6 +1,6 @@
 // src/pages/AdminOrders.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/requests"; // JWT-enabled axios
 
 const allowedStatuses = ["PENDING", "SHIPPED", "DELIVERED"];
 
@@ -16,8 +16,8 @@ export default function AdminOrders() {
   };
 
   const fetchOrders = () => {
-    axios
-      .get("http://localhost:8080/orders/all")
+    api
+      .get("/orders/all") // token attached
       .then((res) => {
         console.log("Orders:", res.data);
         setOrders(normalizeOrders(res.data));
@@ -33,17 +33,17 @@ export default function AdminOrders() {
   }, []);
 
   const changeStatus = (orderId, status) => {
-    axios
-      .put("http://localhost:8080/orders/updateStatus", null, {
+    api
+      .put("/orders/updateStatus", null, {
         params: { orderId, status },
-      })
+      }) // token attached
       .then((res) => {
         console.log("Status update response:", res.data);
         fetchOrders();
       })
       .catch((err) => {
         console.error("Error updating status:", err);
-        alert("Failed to update status. Check console.");
+        alert("Failed to update status");
       });
   };
 
@@ -69,12 +69,9 @@ export default function AdminOrders() {
             {orders.map((o) => (
               <tr key={o.orderId}>
                 <td>{o.orderId}</td>
-
                 <td>{o.user?.username ?? "N/A"}</td>
-
                 <td>₹ {o.totalAmount}</td>
                 <td>{o.status}</td>
-
                 <td>
                   {allowedStatuses.map((st) => (
                     <button

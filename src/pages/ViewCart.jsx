@@ -1,36 +1,50 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../api/requests";
 import PaymentButton from "../pages/PaymentButton";
 
 export default function ViewCart() {
+  const navigate = useNavigate();
+
   const [username] = useState(localStorage.getItem("username") || "");
   const [items, setItems] = useState([]);
   const [address, setAddress] = useState("");
   const [paymentMode, setPaymentMode] = useState("COD");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  // Fetch Cart Items
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/signin");
+    }
+  }, [navigate]);
+
+  // Fetch cart
   const fetchCart = useCallback(() => {
     if (!username) return;
 
-    axios
-      .get("http://localhost:8080/viewCart", { params: { username } })
+    api
+      .get("/viewCart", { params: { username } })
       .then((res) => setItems(res.data))
-      .catch(console.error);
-  }, [username]);
+      .catch((err) => {
+        console.error(err);
+        if (err.response?.status === 403) {
+          alert("Session expired. Login again.");
+          navigate("/signin");
+        }
+      });
+  }, [username, navigate]);
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
-  // Update Quantity
+  // Update quantity
   const updateQuantity = (item, newQty) => {
     if (newQty < 1) return;
 
-    axios
-      .post("http://localhost:8080/updateCartItem", {
+    api
+      .post("/updateCartItem", {
         username,
         productId: item.productId,
         quantity: newQty,
@@ -39,20 +53,22 @@ export default function ViewCart() {
       .catch(console.error);
   };
 
-  // Delete item
+  // Remove item
   const deleteItem = (productId) => {
-    axios
-      .delete("http://localhost:8080/cart/remove", {
+    api
+      .delete("/cart/remove", {
         params: { username, productId },
       })
       .then(fetchCart)
       .catch(console.error);
   };
 
-  // Clear Cart
+  // Clear cart
   const clearCart = () => {
-    axios
-      .delete("http://localhost:8080/cart/clear", { params: { username } })
+    api
+      .delete("/cart/clear", {
+        params: { username },
+      })
       .then(fetchCart)
       .catch(console.error);
   };
@@ -73,8 +89,8 @@ export default function ViewCart() {
 
     setLoading(true);
 
-    axios
-      .post("http://localhost:8080/orders/checkout", {
+    api
+      .post("/orders/checkout", {
         username,
         address,
         paymentMode,
@@ -164,7 +180,7 @@ export default function ViewCart() {
             </button>
           </div>
 
-          {/* CHECKOUT BOX */}
+          {/* CHECKOUT */}
           <div className="checkout-box">
             <h3>Checkout</h3>
 
@@ -174,7 +190,6 @@ export default function ViewCart() {
               onChange={(e) => setAddress(e.target.value)}
             />
 
-            {/* PAYMENT OPTIONS */}
             <div>
               <label>
                 <input
@@ -193,22 +208,20 @@ export default function ViewCart() {
                   checked={paymentMode === "ONLINE"}
                   onChange={(e) => setPaymentMode(e.target.value)}
                 />
-                Online Payment (Razorpay)
+                Online Payment
               </label>
             </div>
 
-            {/* COD BUTTON */}
             {paymentMode === "COD" && (
               <button
                 className="btn btn-primary"
                 onClick={handleCheckout}
                 disabled={loading}
               >
-                {loading ? "Placing Order..." : "Place COD Order"}
+                {loading ? "Placing Order..." : "Place Order"}
               </button>
             )}
 
-            {/* RAZORPAY BUTTON */}
             {paymentMode === "ONLINE" && (
               <div style={{ marginTop: "20px" }}>
                 <PaymentButton username={username} />

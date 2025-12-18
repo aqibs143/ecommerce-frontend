@@ -1,24 +1,36 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import api from "../api/requests";
 
 export default function OrderHistory() {
-  const [username] = useState(localStorage.getItem("username") || "");
   const [orders, setOrders] = useState([]);
+  const navigate = useNavigate();
+
+  const username = localStorage.getItem("username");
 
   useEffect(() => {
-    if (!username) return;
+    // Not logged in → redirect
+    if (!localStorage.getItem("token")) {
+      navigate("/signin");
+      return;
+    }
 
-    axios
-      .get("http://localhost:8080/orders/history", { params: { username } })
-      .then((res) => {
-        if (Array.isArray(res.data)) {
-          setOrders(res.data);
-        } else {
-          setOrders([]);
-        }
+    api
+      .get("/orders/history", {
+        params: { username },
       })
-      .catch(console.error);
-  }, [username]);
+      .then((res) => {
+        setOrders(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((err) => {
+        console.error(err);
+
+        if (err.response?.status === 403) {
+          alert("Session expired. Please login again.");
+          navigate("/signin");
+        }
+      });
+  }, [username, navigate]);
 
   return (
     <div className="container">
