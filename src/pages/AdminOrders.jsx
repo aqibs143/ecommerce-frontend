@@ -1,4 +1,3 @@
-// src/pages/AdminOrders.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../api/requests"; // JWT-enabled axios
 

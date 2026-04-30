@@ -100,6 +100,7 @@ export default function Admin() {
                   >
                     Update
                   </button>
+
                   <button
                     className="btn btn-danger"
                     onClick={() => handleDelete(p.id)}
@@ -117,7 +118,7 @@ export default function Admin() {
         </tbody>
       </table>
 
-      <p>
+      <p> 
         <Link to="/admin_orders_page" className="link-btn">
           View All Orders
         </Link>
