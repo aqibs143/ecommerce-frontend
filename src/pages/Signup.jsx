@@ -14,8 +14,8 @@ export default function Signup() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios
-      .post("http://localhost:8080/signUp", {
+    api
+      .post("/signUp", {
         username,
         email,
         password,
