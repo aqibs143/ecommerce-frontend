@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://salessavvy-backend-difs.onrender.com",  // ← direct URL
+  baseURL: "https://salessavvy-backend-difs.onrender.com", 
 });
 
 api.interceptors.request.use(
