@@ -37,7 +37,7 @@ export default function Updateproduct() {
       return;
     }
 
-    axios
+    api
       .put(
         "/products/updateProduct",
         {
@@ -51,7 +51,7 @@ export default function Updateproduct() {
           headers: {
             Authorization: `Bearer ${token}`, // JWT
           },
-        }
+        },
       )
       .then(() => {
         alert("Product updated successfully");
