@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:8080",
+  baseURL: "https://salessavvy-backend-difs.onrender.com",  // ← direct URL
 });
 
 api.interceptors.request.use(
@@ -12,7 +12,7 @@ api.interceptors.request.use(
       token &&
       !config.url.includes("/auth/login") &&
       !config.url.includes("/auth/register") &&
-      !config.url.includes("/signUp")      
+      !config.url.includes("/signUp")
     ) {
       config.headers.Authorization = `Bearer ${token}`;
     }
