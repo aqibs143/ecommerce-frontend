@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/requests";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Updateproduct() {
@@ -39,7 +39,7 @@ export default function Updateproduct() {
 
     axios
       .put(
-        "http://localhost:8080/products/updateProduct",
+        "/products/updateProduct",
         {
           id: prod.id,
           name,
