@@ -11,7 +11,8 @@ api.interceptors.request.use(
     if (
       token &&
       !config.url.includes("/auth/login") &&
-      !config.url.includes("/auth/register")
+      !config.url.includes("/auth/register") &&
+      !config.url.includes("/signUp")      
     ) {
       config.headers.Authorization = `Bearer ${token}`;
     }
