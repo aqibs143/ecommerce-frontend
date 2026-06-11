@@ -11,8 +11,8 @@ export default function Signin() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios
-      .post("http://localhost:8080/auth/login", {
+    api
+      .post("/auth/login", {
         username,
         password,
       })
