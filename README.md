@@ -2,16 +2,17 @@
 
 A full-stack e-commerce application frontend built with React.js, featuring a clean user interface for both customers and admins.
 
- **Live Demo:** [https://ecommerce-frontend-oii1.vercel.app](https://ecommerce-frontend-oii1.vercel.app)  
- **Backend Repository:** [https://github.com/aqibs143/E-Commerce-backend-project](https://github.com/aqibs143/E-Commerce-backend-project)
+🔗 **Live Demo:** [https://ecommerce-frontend-oii1.vercel.app](https://ecommerce-frontend-oii1.vercel.app)  
+🔗 **Backend Repository:** [https://github.com/aqibs143/E-Commerce-backend-project](https://github.com/aqibs143/E-Commerce-backend-project)
 
 ---
 
 ## Tech Stack
 
-- **Framework:** React.js 
+- **Framework:** React.js (Create React App)
 - **Routing:** React Router DOM
 - **State Management:** Context API
+- **HTTP Client:** Axios
 - **Styling:** CSS
 - **Deployment:** Vercel
 
@@ -72,8 +73,28 @@ npm run dev
 Create a `.env` file in the root directory:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8080
+REACT_APP_API_BASE_URL=http://localhost:8080
 ```
+
+> For production, the app uses: `https://salessavvy-backend-difs.onrender.com`
+
+---
+
+## Screenshots
+
+### Home Page
+![Home Page](screenshots/home.png)
+
+### User Dashboard — Available Products
+![User Dashboard](screenshots/user-dashboard.png)
+
+### Cart & Checkout
+![Cart](screenshots/cart.png)
+
+### Admin Dashboard
+![Admin Dashboard](screenshots/admin-dashboard.png)
+
+---
 
 ## Backend API
 
@@ -81,5 +102,3 @@ This frontend connects to the SalesSavvy Spring Boot backend.
 Make sure the backend is running before testing locally.
 
 Backend Repo: [https://github.com/aqibs143/E-Commerce-backend-project](https://github.com/aqibs143/E-Commerce-backend-project)
-
-
