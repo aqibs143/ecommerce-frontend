@@ -75,10 +75,6 @@ Create a `.env` file in the root directory:
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
-> For production, replace with your deployed backend URL.
-
----
-
 ## Backend API
 
 This frontend connects to the SalesSavvy Spring Boot backend.  
