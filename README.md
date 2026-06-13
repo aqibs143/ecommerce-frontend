@@ -79,12 +79,6 @@ VITE_API_BASE_URL=http://localhost:8080
 
 ---
 
-## Screenshots
-
-> Add screenshots of your app here (Home page, Product page, Cart, Admin Dashboard)
-
----
-
 ## Backend API
 
 This frontend connects to the SalesSavvy Spring Boot backend.  
